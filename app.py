@@ -157,7 +157,12 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
             
-            return jsonify({'success': True, 'message': 'Account created successfully! Please log in.'})
+            # Return success with redirect to login page
+            return jsonify({
+                'success': True, 
+                'message': 'Account created successfully! Please log in.',
+                'redirect': url_for('login')
+            })
         except Exception as e:
             db.session.rollback()
             error_msg = f'Signup error: {str(e)}'
