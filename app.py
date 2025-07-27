@@ -18,6 +18,35 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+# Initialize database immediately after app creation
+def init_database():
+    try:
+        with app.app_context():
+            db.create_all()
+            print("✅ Database tables created successfully")
+            
+            # Create admin user if none exists
+            admin_exists = User.query.filter_by(is_admin=True).first()
+            if not admin_exists:
+                admin_password = generate_password_hash('admin123')
+                admin_user = User(
+                    username='admin',
+                    email='admin@c2gamezone.com',
+                    password_hash=admin_password,
+                    is_admin=True
+                )
+                db.session.add(admin_user)
+                db.session.commit()
+                print("✅ Default admin user created: admin@c2gamezone.com / admin123")
+            else:
+                print("ℹ️ Admin user already exists")
+    except Exception as e:
+        print(f"❌ Database initialization error: {e}")
+        print(traceback.format_exc())
+
+# Call database initialization
+init_database()
+
 # Database Models
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -57,6 +86,32 @@ def debug():
         'user_id_in_session': 'user_id' in session,
         'templates_exist': True  # We'll check this manually
     })
+
+@app.route('/init_db')
+def init_db_route():
+    try:
+        with app.app_context():
+            db.create_all()
+            print("✅ Database tables created via route")
+            
+            # Create admin user if none exists
+            admin_exists = User.query.filter_by(is_admin=True).first()
+            if not admin_exists:
+                admin_password = generate_password_hash('admin123')
+                admin_user = User(
+                    username='admin',
+                    email='admin@c2gamezone.com',
+                    password_hash=admin_password,
+                    is_admin=True
+                )
+                db.session.add(admin_user)
+                db.session.commit()
+                print("✅ Admin user created via route")
+            
+            return jsonify({'success': True, 'message': 'Database initialized successfully'})
+    except Exception as e:
+        print(f"❌ Database initialization error via route: {e}")
+        return jsonify({'success': False, 'error': str(e)})
 
 @app.route('/')
 def index():
@@ -132,6 +187,14 @@ def home():
 def login():
     if request.method == 'POST':
         try:
+            # Ensure database is initialized
+            try:
+                with app.app_context():
+                    db.create_all()
+                    print("✅ Database tables ensured during login")
+            except Exception as db_error:
+                print(f"⚠️ Database check error: {db_error}")
+            
             data = request.get_json()
             email = data.get('email')
             password = data.get('password')
