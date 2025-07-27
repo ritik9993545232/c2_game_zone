@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="C2_GAME_ZONE\Files\IMAGES\LOGOG.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Zone Logo Animation</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-image: linear-gradient( 109.6deg,  rgba(204,0,0,1) 11.2%, rgba(68,0,0,1) 100.6% );
+      animation: gradientAnimation 6s ease infinite;
+      overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    .logo-container {
+      position: relative;
+      width: 400px;
+      height: 400px;
+      opacity: 0;
+      animation: fadeIn 4s forwards;
+    }
+
+    .logo {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .logo img {
+      max-width: 250%;
+      max-height: 250%;
+    }
+
+    @keyframes fadeIn {
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+       background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }  @keyframes gradientAnimation {
+      0% {
+        b
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="logo-container">
+    <div class="logo">
+      <img src="\C2_GAME_ZONE\Files\IMAGES\NAMEF.png" alt="Game Zone Logo">
+    </div>
+  </div>
+    <script>
+    setTimeout(() => {
+      window.location.href = "/C2_GAME_ZONE/Files/HTML_FILES/home.html"; // Replace 'home.html' with the actual path to your homepage
+    }, 3000); // Adjust the delay as needed (currently 3 seconds)
+  </script>
+</body>
+</html>
