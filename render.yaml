@@ -3,8 +3,12 @@ services:
     name: c2-game-zone
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
+    startCommand: gunicorn app:app --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
-        value: 3.9.16
+        value: 3.9.18
+      - key: RENDER
+        value: true
+      - key: FLASK_ENV
+        value: production
     autoDeploy: true 

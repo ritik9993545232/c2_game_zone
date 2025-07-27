@@ -7,7 +7,13 @@ import secrets
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = secrets.token_hex(16)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_game_zone.db'
+# Database configuration for production
+if os.environ.get('RENDER'):
+    # Production: Use absolute path for Render
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/c2_game_zone.db'
+else:
+    # Development: Use relative path
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///c2_game_zone.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -315,10 +321,6 @@ if __name__ == '__main__':
         db.create_all()
         create_first_admin()
     
-    # Check if running on Render (production)
-    if os.environ.get('RENDER'):
-        # Production settings
-        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 10000)))
-    else:
-        # Development settings
-        app.run(debug=True, host='0.0.0.0', port=5000) 
+    # Production settings for Render
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False) 
