@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - C2 Game Zone</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #FF3CAC;
+            background-image: linear-gradient(225deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%);
+            color: white;
+            text-align: center;
+        }
+
+        header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .header-logo {
+            position: absolute;
+            right: 1300px;
+            top: 50%;
+            transform: translateY(-45%);
+            height: 170px;
+            width: auto;
+        }
+
+        .header-left {
+            position: absolute;
+            left: 150px;
+            font-size: 2.5em;
+            font-weight: bold;
+            animation: fontGlow 3s ease-in-out infinite;
+        }
+
+        .header-center {
+            display: flex;
+            justify-content: center;
+            flex-grow: 1;
+        }
+
+        .search-bar {
+            padding: 8px;
+            font-size: 1em;
+            width: 300px;
+            border: none;
+            border-radius: 25px;
+            background-color: #fff;
+            color: #333;
+            text-align: center;
+        }
+
+        .header-right {
+            position: absolute;
+            right: 100px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .user-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-menu-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+
+        .user-menu-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+        }
+
+        .user-menu-content a:hover {
+            background-color: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .user-menu:hover .user-menu-content {
+            display: block;
+        }
+
+        .logout-btn {
+            background: #ff6b6b;
+            color: white !important;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .logout-btn:hover {
+            background: #ff5252 !important;
+        }
+
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            right: -250px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            z-index: 99;
+        }
+
+        .sidebar.active {
+            right: 0;
+        }
+
+        .menu-icon {
+            display: flex;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar a {
+            padding: 10px 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+        }
+
+        .sidebar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+
+        @keyframes fontGlow {
+            0%, 100% {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #ff5722, 0 0 30px #ff5722;
+            }
+            50% {
+                text-shadow: 0 0 10px #ffcc80, 0 0 20px #ffcc80, 0 0 40px #ff5722, 0 0 60px #ff5722;
+            }
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            column-gap: 40px;
+            row-gap: 100px;
+            padding: 20px;
+            justify-items: center;
+            margin-top: 100px;
+            margin-bottom: 100px;
+            position: relative;
+        }
+
+        .game-icon {
+            width: 120px;
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1em;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s ease;
+            visibility: visible;
+        }
+
+        .game-name {
+            margin-top: 150px;
+            font-size: 1em;
+            color: white;
+        }
+
+        .game-icon:hover {
+            transform: scale(1.1);
+            opacity: 0.9;
+        }
+
+        .game-icon a {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.2em;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        @media (max-width: 768px) {
+            .game-grid {
+                grid-template-columns: repeat(3, 1fr);
+                column-gap: 20px;
+                row-gap: 60px;
+            }
+            
+            .header-left {
+                left: 20px;
+                font-size: 1.5em;
+            }
+            
+            .header-right {
+                right: 20px;
+            }
+            
+            .search-bar {
+                width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logo" class="header-logo" onerror="this.style.display='none'">
+        
+        <div class="header-left">
+            C2 GAME ZONE
+        </div>
+        
+        <div class="header-center">
+            <input type="text" class="search-bar" placeholder="Search games...">
+        </div>
+        
+        <div class="header-right">
+            {% if user %}
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        {{ user.username[0].upper() }}
+                    </div>
+                    <span>{{ user.username }}</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="user-menu-content">
+                    <a href="{{ url_for('user_profile') }}">Profile</a>
+                    {% if user.is_admin %}
+                    <a href="{{ url_for('admin_dashboard') }}">Admin Panel</a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="{{ url_for('login') }}" style="color: white; text-decoration: none; padding: 10px 20px; background: rgba(255,255,255,0.2); border-radius: 20px;">
+                Login
+            </a>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="sidebar" id="sidebar">
+        <a href="{{ url_for('home') }}">Home</a>
+        <a href="{{ url_for('user_profile') }}">Profile</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+
+    <div class="menu-icon" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    {% if user %}
+    <div class="welcome-message">
+        Welcome back, {{ user.username }}! Ready to play some games?
+    </div>
+    {% endif %}
+
+    <div class="game-grid">
+        <div class="game-icon" style="background-image: url('{{ url_for('static', filename='images/2048.jpg') }}')">
+            <a href="{{ url_for('static', filename='../Files/GAME_FILES/2048-Game/2048.html') }}">
+                <div class="game-name">2048</div>
+            </a>
+        </div>
+        
+        <div class="game-icon" style="background-image: url('{{ url_for('static', filename='images/snake.jpg') }}')">
+            <a href="{{ url_for('static', filename='../Files/GAME_FILES/SNAKE/SNAKE.html') }}">
+                <div class="game-name">Snake</div>
+            </a>
+        </div>
+        
+        <div class="game-icon" style="background-image: url('{{ url_for('static', filename='images/tetris.jpg') }}')">
+            <a href="{{ url_for('static', filename='../Files/GAME_FILES/tertis/tetris.html') }}">
+                <div class="game-name">Tetris</div>
+            </a>
+        </div>
+        
+        <div class="game-icon" style="background-image: url('{{ url_for('static', filename='images/chess.jpg') }}')">
+            <a href="{{ url_for('static', filename='../Files/GAME_FILES/Chess/Chess-main/html/index.html') }}">
+                <div class="game-name">Chess</div>
+            </a>
+        </div>
+        
+        <div class="game-icon" style="background-image: url('{{ url_for('static', filename='images/candycrush.jpg') }}')">
+            <a href="{{ url_for('static', filename='../Files/GAME_FILES/candy-crush-master/index.html') }}">
+                <div class="game-name">Candy Crush</div>
+            </a>
+        </div>
+        
+        <div class="game-icon" style="background-image: url('{{ url_for('static', filename='images/flappybird.jpg') }}')">
+            <a href="{{ url_for('static', filename='../Files/GAME_FILES/FLAPPY_BIRD/flappybird.html') }}">
+                <div class="game-name">Flappy Bird</div>
+            </a>
+        </div>
+        
+        <div class="game-icon" style="background-image: url('{{ url_for('static', filename='images/carrace.jpg') }}')">
+            <a href="{{ url_for('static', filename='../Files/GAME_FILES/CAR_RACE_GAME/carrace.html') }}">
+                <div class="game-name">Car Race</div>
+            </a>
+        </div>
+        
+        <div class="game-icon" style="background-image: url('{{ url_for('static', filename='images/tictactoe.jpg') }}')">
+            <a href="{{ url_for('static', filename='../Files/GAME_FILES/TicTacToe/index.html') }}">
+                <div class="game-name">Tic Tac Toe</div>
+            </a>
+        </div>
+        
+        <div class="game-icon" style="background-image: url('{{ url_for('static', filename='images/memory.jpg') }}')">
+            <a href="{{ url_for('static', filename='../Files/GAME_FILES/MEMORY_GAME/memory.html') }}">
+                <div class="game-name">Memory Game</div>
+            </a>
+        </div>
+        
+        <div class="game-icon" style="background-image: url('{{ url_for('static', filename='images/puzzle.jpg') }}')">
+            <a href="{{ url_for('static', filename='../Files/GAME_FILES/image-puzzle-main/index.html') }}">
+                <div class="game-name">Puzzle</div>
+            </a>
+        </div>
+        
+        <div class="game-icon" style="background-image: url('{{ url_for('static', filename='images/quiz.jpg') }}')">
+            <a href="{{ url_for('static', filename='../Files/GAME_FILES/QUIZ_GAME/1.html') }}">
+                <div class="game-name">Quiz</div>
+            </a>
+        </div>
+        
+        <div class="game-icon" style="background-image: url('{{ url_for('static', filename='images/painting.jpg') }}')">
+            <a href="{{ url_for('static', filename='../Files/GAME_FILES/painting/paint.html') }}">
+                <div class="game-name">Painting</div>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Close sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuIcon = document.querySelector('.menu-icon');
+            
+            if (!sidebar.contains(event.target) && !menuIcon.contains(event.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Search functionality
+        document.querySelector('.search-bar').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const gameIcons = document.querySelectorAll('.game-icon');
+            
+            gameIcons.forEach(icon => {
+                const gameName = icon.querySelector('.game-name').textContent.toLowerCase();
+                if (gameName.includes(searchTerm)) {
+                    icon.style.display = 'flex';
+                } else {
+                    icon.style.display = 'none';
+                }
+            });
+        });
+
+        // Add click event to save game progress when user clicks on a game
+        document.querySelectorAll('.game-icon a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const gameName = this.querySelector('.game-name').textContent;
+                
+                // Save that user accessed this game
+                fetch('/save_progress', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        game_name: gameName,
+                        progress_data: JSON.stringify({last_accessed: new Date().toISOString()}),
+                        score: 0,
+                        level: 1,
+                        lives: 3,
+                        game_state: JSON.stringify({})
+                    })
+                }).catch(error => console.log('Could not save progress:', error));
+            });
+        });
+
+        // Function to load game progress when returning to a game
+        function loadGameProgress(gameName) {
+            fetch(`/get_progress/${gameName}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Store progress data in localStorage for the game to access
+                        localStorage.setItem(`game_progress_${gameName}`, JSON.stringify({
+                            score: data.score,
+                            level: data.level,
+                            lives: data.lives,
+                            game_state: data.game_state,
+                            progress_data: data.progress_data
+                        }));
+                        console.log(`Loaded progress for ${gameName}:`, data);
+                    }
+                })
+                .catch(error => console.log('Could not load progress:', error));
+        }
+
+        // Load progress for all games on page load
+        document.querySelectorAll('.game-icon a').forEach(link => {
+            const gameName = link.querySelector('.game-name').textContent;
+            loadGameProgress(gameName);
+        });
+    </script>
+</body>
+</html> 
