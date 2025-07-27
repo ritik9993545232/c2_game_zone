@@ -164,6 +164,145 @@ def index():
 def test():
     return "Flask app is working! 🎉"
 
+@app.route('/test_signup')
+def test_signup():
+    return """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Test Signup - C2 Game Zone</title>
+        <style>
+            body { 
+                font-family: Arial, sans-serif; 
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                margin: 0;
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .test-container {
+                background: rgba(255,255,255,0.1);
+                padding: 40px;
+                border-radius: 20px;
+                backdrop-filter: blur(10px);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+                color: white;
+                width: 100%;
+                max-width: 400px;
+            }
+            .form-group {
+                margin-bottom: 20px;
+            }
+            label {
+                display: block;
+                margin-bottom: 5px;
+            }
+            input {
+                width: 100%;
+                padding: 10px;
+                border: none;
+                border-radius: 5px;
+                background: rgba(255,255,255,0.2);
+                color: white;
+                box-sizing: border-box;
+            }
+            input::placeholder {
+                color: rgba(255,255,255,0.7);
+            }
+            button {
+                width: 100%;
+                padding: 15px;
+                background: rgba(255,255,255,0.2);
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 16px;
+            }
+            button:hover {
+                background: rgba(255,255,255,0.3);
+            }
+            .result {
+                margin-top: 20px;
+                padding: 10px;
+                border-radius: 5px;
+                background: rgba(255,255,255,0.1);
+            }
+        </style>
+    </head>
+    <body>
+        <div class="test-container">
+            <h2 style="text-align: center; margin-bottom: 30px;">🧪 Test Signup</h2>
+            <form id="testSignupForm">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required placeholder="Enter password">
+                </div>
+                <button type="submit">Test Signup</button>
+            </form>
+            <div id="result" class="result" style="display: none;"></div>
+        </div>
+        <script>
+            document.getElementById('testSignupForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const username = document.getElementById('username').value;
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                const resultDiv = document.getElementById('result');
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = '🔄 Testing signup...';
+                
+                fetch('/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                })
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Response data:', data);
+                    if (data.success) {
+                        resultDiv.innerHTML = `✅ Success! ${data.message}`;
+                        setTimeout(() => {
+                            if (data.redirect) {
+                                window.location.href = data.redirect;
+                            } else {
+                                window.location.href = '/home';
+                            }
+                        }, 2000);
+                    } else {
+                        resultDiv.innerHTML = `❌ Error: ${data.error}`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultDiv.innerHTML = `❌ Network Error: ${error.message}`;
+                });
+            });
+        </script>
+    </body>
+    </html>
+    """
+
 @app.route('/init_db')
 def init_db_route():
     try:
@@ -400,6 +539,8 @@ def login():
 def signup():
     if request.method == 'POST':
         try:
+            print("🔄 Signup request received")  # Debug log
+            
             # Ensure database is initialized
             try:
                 with app.app_context():
@@ -413,12 +554,19 @@ def signup():
             email = data.get('email')
             password = data.get('password')
             
+            print(f"📝 Signup attempt for: {username} ({email})")  # Debug log
+            
+            # Validate input
+            if not username or not email or not password:
+                return jsonify({'success': False, 'error': 'All fields are required'})
+            
             # Check if user already exists
             existing_user = User.query.filter(
                 (User.username == username) | (User.email == email)
             ).first()
             
             if existing_user:
+                print(f"❌ User already exists: {username} or {email}")  # Debug log
                 return jsonify({'success': False, 'error': 'Username or email already exists'})
             
             # Create new user
@@ -428,14 +576,25 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
             
+            print(f"✅ User created successfully: {username}")  # Debug log
+            
             # Log in the user
             session['user_id'] = new_user.id
             session['username'] = new_user.username
             
-            return jsonify({'success': True, 'redirect': url_for('home')})
+            print(f"✅ User logged in: {username}")  # Debug log
+            
+            return jsonify({
+                'success': True, 
+                'message': 'Account created successfully! Welcome to C2 Game Zone!',
+                'redirect': url_for('home')
+            })
         except Exception as e:
             db.session.rollback()
-            return jsonify({'success': False, 'error': 'Failed to create account'})
+            error_msg = f'Signup error: {str(e)}'
+            print(f"❌ {error_msg}")  # Debug log
+            print(traceback.format_exc())  # Full error trace
+            return jsonify({'success': False, 'error': error_msg})
     
     try:
         return render_template('signup.html')
@@ -550,18 +709,18 @@ def signup():
                         })
                     })
                     .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            alert('Account created successfully!');
-                            if (data.redirect) {
-                                window.location.href = data.redirect;
-                            } else {
-                                window.location.href = '/home';
-                            }
-                        } else {
-                            alert(data.error || 'Signup failed');
-                        }
-                    })
+                                         .then(data => {
+                         if (data.success) {
+                             alert('Account created successfully! Welcome to C2 Game Zone!');
+                             if (data.redirect) {
+                                 window.location.href = data.redirect;
+                             } else {
+                                 window.location.href = '/home';
+                             }
+                         } else {
+                             alert(data.error || 'Signup failed');
+                         }
+                     })
                     .catch(error => {
                         console.error('Error:', error);
                         alert('Network error. Please check your connection.');
