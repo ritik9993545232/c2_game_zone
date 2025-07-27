@@ -55,6 +55,34 @@ class GameProgress(db.Model):
     # Ensure unique combination of user and game
     __table_args__ = (db.UniqueConstraint('user_id', 'game_name', name='unique_user_game'),)
 
+# Initialize database function
+def init_database():
+    try:
+        with app.app_context():
+            # Create all tables
+            db.create_all()
+            print("Database tables created successfully")
+            
+            # Create admin user if none exists
+            admin_exists = User.query.filter_by(is_admin=True).first()
+            if not admin_exists:
+                admin_password = generate_password_hash('admin123')
+                admin_user = User(
+                    username='admin',
+                    email='admin@c2gamezone.com',
+                    password_hash=admin_password,
+                    is_admin=True
+                )
+                db.session.add(admin_user)
+                db.session.commit()
+                print("Default admin user created: admin@c2gamezone.com / admin123")
+            else:
+                print("Admin user already exists")
+                
+    except Exception as e:
+        print(f"Database initialization error: {e}")
+        print(traceback.format_exc())
+
 # Routes
 @app.route('/')
 def index():
@@ -106,6 +134,9 @@ def login():
 def signup():
     if request.method == 'POST':
         try:
+            # Ensure database is initialized
+            init_database()
+            
             data = request.get_json()
             username = data.get('username')
             email = data.get('email')
@@ -129,7 +160,10 @@ def signup():
             return jsonify({'success': True, 'message': 'Account created successfully! Please log in.'})
         except Exception as e:
             db.session.rollback()
-            return jsonify({'success': False, 'error': f'Signup error: {str(e)}'})
+            error_msg = f'Signup error: {str(e)}'
+            print(error_msg)
+            print(traceback.format_exc())
+            return jsonify({'success': False, 'error': error_msg})
     
     try:
         return render_template('signup.html')
@@ -355,34 +389,17 @@ def check_auth():
     except Exception as e:
         return jsonify({'authenticated': False, 'error': str(e)})
 
-def create_first_admin():
+@app.route('/init_db')
+def init_db_route():
     try:
-        # Check if any admin exists
-        admin_exists = User.query.filter_by(is_admin=True).first()
-        if not admin_exists:
-            # Create default admin
-            admin_password = generate_password_hash('admin123')
-            admin_user = User(
-                username='admin',
-                email='admin@c2gamezone.com',
-                password_hash=admin_password,
-                is_admin=True
-            )
-            db.session.add(admin_user)
-            db.session.commit()
-            print("Default admin user created: admin@c2gamezone.com / admin123")
+        init_database()
+        return jsonify({'success': True, 'message': 'Database initialized successfully'})
     except Exception as e:
-        print(f"Error creating admin: {e}")
+        return jsonify({'success': False, 'error': str(e)})
 
 if __name__ == '__main__':
-    try:
-        with app.app_context():
-            db.create_all()
-            create_first_admin()
-            print("Database initialized successfully")
-    except Exception as e:
-        print(f"Database initialization error: {e}")
-        print(traceback.format_exc())
+    # Initialize database on startup
+    init_database()
     
     # Production settings for Render
     port = int(os.environ.get('PORT', 5000))
