@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - C2 Game Zone</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@48,400,0,0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@48,400,1,0" />
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #FF3CAC;
+            background-image: linear-gradient(225deg, #FF3CAC 0%, #784BA0 50%, #2B86C5 100%);
+            color: white;
+            text-align: center;
+            min-height: 100vh;
+        }
+
+        header {
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-logo {
+            height: 80px;
+            width: auto;
+            margin-right: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            font-size: 2.5em;
+            font-weight: bold;
+            animation: fontGlow 3s ease-in-out infinite;
+        }
+
+        .header-center {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            margin: 0 20px;
+        }
+
+        .search-bar {
+            padding: 12px 20px;
+            font-size: 1em;
+            width: 400px;
+            border: none;
+            border-radius: 25px;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #333;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-bar:focus {
+            outline: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: background 0.3s ease;
+        }
+
+        .user-info:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .user-menu-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.95);
+            min-width: 180px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border-radius: 10px;
+            margin-top: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .user-menu-content a {
+            color: #333;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.3s;
+            border-radius: 10px;
+            margin: 2px;
+        }
+
+        .user-menu-content a:hover {
+            background-color: #f1f1f1;
+        }
+
+        .user-menu:hover .user-menu-content {
+            display: block;
+        }
+
+        .logout-btn {
+            background: #ff6b6b;
+            color: white !important;
+            border-radius: 0 0 10px 10px;
+        }
+
+        .logout-btn:hover {
+            background: #ff5252 !important;
+        }
+
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            right: -250px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            overflow-x: hidden;
+            transition: 0.5s;
+            padding-top: 60px;
+            z-index: 99;
+        }
+
+        .sidebar.active {
+            right: 0;
+        }
+
+        .menu-icon {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            z-index: 98;
+        }
+
+        .sidebar a {
+            padding: 15px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+            transition: 0.3s;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        @keyframes fontGlow {
+            0%, 100% {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 20px #ff5722, 0 0 30px #ff5722;
+            }
+            50% {
+                text-shadow: 0 0 10px #ffcc80, 0 0 20px #ffcc80, 0 0 40px #ff5722, 0 0 60px #ff5722;
+            }
+        }
+
+        .main-content {
+            padding: 40px 20px;
+            margin-top: 20px;
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin: 20px 0 40px 0;
+            font-size: 1.5em;
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 30px;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .game-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .game-icon {
+            width: 120px;
+            height: 120px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 15px;
+            margin: 0 auto 15px auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .game-card:hover .game-icon {
+            transform: scale(1.05);
+        }
+
+        .game-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: white;
+            margin-top: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .login-btn {
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 25px;
+            font-weight: bold;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: inline-block;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .header-left {
+                font-size: 1.8em;
+            }
+            
+            .search-bar {
+                width: 250px;
+            }
+            
+            .game-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 20px;
+            }
+            
+            .game-icon {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .header-center {
+                order: 3;
+                width: 100%;
+            }
+            
+            .search-bar {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-left">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="C2 Game Zone Logo" class="header-logo" onerror="this.style.display='none'">
+            C2 GAME ZONE
+        </div>
+        
+        <div class="header-center">
+            <input type="text" class="search-bar" placeholder="Search games..." id="searchBar">
+        </div>
+        
+        <div class="header-right">
+            {% if user %}
+            <div class="user-menu">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        {{ user.username[0].upper() }}
+                    </div>
+                    <span>{{ user.username }}</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="user-menu-content">
+                    <a href="{{ url_for('user_profile') }}">
+                        <i class="fas fa-user"></i> Profile
+                    </a>
+                    {% if user.is_admin %}
+                    <a href="{{ url_for('admin_dashboard') }}">
+                        <i class="fas fa-cog"></i> Admin Panel
+                    </a>
+                    {% endif %}
+                    <a href="{{ url_for('logout') }}" class="logout-btn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            {% endif %}
+        </div>
+    </header>
+
+    <div class="sidebar" id="sidebar">
+        <a href="{{ url_for('home') }}">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{{ url_for('user_profile') }}">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="#about">
+            <i class="fas fa-info-circle"></i> About
+        </a>
+        <a href="#contact">
+            <i class="fas fa-envelope"></i> Contact
+        </a>
+        <a href="{{ url_for('logout') }}">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <div class="menu-icon" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <div class="main-content">
+        {% if user %}
+        <div class="welcome-message">
+            <i class="fas fa-gamepad"></i> Welcome back, {{ user.username }}! Ready to play some amazing games?
+        </div>
+        {% else %}
+        <div class="welcome-message">
+            <i class="fas fa-gamepad"></i> Welcome to C2 Game Zone! Login to save your progress and compete with friends.
+        </div>
+        {% endif %}
+
+        <div class="game-grid">
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/2048-Game/2048.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/2048.jpg') }}')"></div>
+                    <div class="game-name">2048</div>
+                </a>
+            </div>
+            
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/SNAKE/SNAKE.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/SNAKE.png') }}')"></div>
+                    <div class="game-name">Snake</div>
+                </a>
+            </div>
+            
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/tertis/tetris.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/tetris.jpg') }}')"></div>
+                    <div class="game-name">Tetris</div>
+                </a>
+            </div>
+            
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/Chess/Chess-main/html/index.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/chess.jpg') }}')"></div>
+                    <div class="game-name">Chess</div>
+                </a>
+            </div>
+            
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/candy-crush-master/index.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/candycrush.jpg') }}')"></div>
+                    <div class="game-name">Candy Crush</div>
+                </a>
+            </div>
+            
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/FLAPPY_BIRD/flappybird.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/flappybird.jpg') }}')"></div>
+                    <div class="game-name">Flappy Bird</div>
+                </a>
+            </div>
+            
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/CAR_RACE_GAME/carrace.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/carrace.jpg') }}')"></div>
+                    <div class="game-name">Car Race</div>
+                </a>
+            </div>
+            
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/TicTacToe/index.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/tictactoe.png') }}')"></div>
+                    <div class="game-name">Tic Tac Toe</div>
+                </a>
+            </div>
+            
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/MEMORY_GAME/memory.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/MEMORY.png') }}')"></div>
+                    <div class="game-name">Memory Game</div>
+                </a>
+            </div>
+            
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/image-puzzle-main/index.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/puzzle.jpg') }}')"></div>
+                    <div class="game-name">Puzzle</div>
+                </a>
+            </div>
+            
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/QUIZ_GAME/1.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/quizlogo.jpg') }}')"></div>
+                    <div class="game-name">Quiz</div>
+                </a>
+            </div>
+            
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/painting/paint.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/Draw.png') }}')"></div>
+                    <div class="game-name">Painting</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/HANGMAN/hangman.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/hangman.png') }}')"></div>
+                    <div class="game-name">Hangman</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/Number-Guessing-Game/numberguess.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/guessnumber.jpg') }}')"></div>
+                    <div class="game-name">Number Guess</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/Connect-Four-Game/connect4.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/connect4.jpg') }}')"></div>
+                    <div class="game-name">Connect Four</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/Crossy-Road-Game/roadcross.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/crossroad.jpg') }}')"></div>
+                    <div class="game-name">Crossy Road</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/Fruit-Slicer-Game/fruitslicer.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/fruit-slice.jpg') }}')"></div>
+                    <div class="game-name">Fruit Slicer</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/piano/index.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/piano.jpg') }}')"></div>
+                    <div class="game-name">Piano</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/photohunt/photohunt.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/photohunt.png') }}')"></div>
+                    <div class="game-name">Photo Hunt</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/beatmole/game.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/beatmole.png') }}')"></div>
+                    <div class="game-name">Beat the Mole</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/boxtackle/boxtackle.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/boxtackle.png') }}')"></div>
+                    <div class="game-name">Box Tackle</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/Carrom/carrom.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/carrom.png') }}')"></div>
+                    <div class="game-name">Carrom</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/Rubiks/rubik.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/rubik.png') }}')"></div>
+                    <div class="game-name">Rubik's Cube</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/Sudoku/index.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/sudoku.jpg') }}')"></div>
+                    <div class="game-name">Sudoku</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/defense/defense.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/defense.png') }}')"></div>
+                    <div class="game-name">Defense</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/color_blast/colorblast.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/colorblast.png') }}')"></div>
+                    <div class="game-name">Color Blast</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/SHOOTER/shooter.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/shooter.jpg') }}')"></div>
+                    <div class="game-name">Shooter</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/Tower-Blocks/towerblocks.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/towerblocks.jpg') }}')"></div>
+                    <div class="game-name">Tower Blocks</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/Tilting-Maze-Game/tiltingmaze.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/maze.png') }}')"></div>
+                    <div class="game-name">Tilting Maze</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/Typing_Speed_Test_Game/index.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/typing.png') }}')"></div>
+                    <div class="game-name">Typing Test</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/math-quiz-main/index.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/math.jpg') }}')"></div>
+                    <div class="game-name">Math Quiz</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/Soccer/index.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/football.jpg') }}')"></div>
+                    <div class="game-name">Soccer</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/tennis-game-master/index.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/tennis.jpg') }}')"></div>
+                    <div class="game-name">Tennis</div>
+                </a>
+            </div>
+
+            <div class="game-card">
+                <a href="{{ url_for('static', filename='../Files/GAME_FILES/AquaSort_Game/index.html') }}">
+                    <div class="game-icon" style="background-image: url('{{ url_for('static', filename='../Files/IMAGES/aquasort.jpg') }}')"></div>
+                    <div class="game-name">Aqua Sort</div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+
+        // Close sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuIcon = document.querySelector('.menu-icon');
+            
+            if (!sidebar.contains(event.target) && !menuIcon.contains(event.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Search functionality
+        document.getElementById('searchBar').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const gameCards = document.querySelectorAll('.game-card');
+            
+            gameCards.forEach(card => {
+                const gameName = card.querySelector('.game-name').textContent.toLowerCase();
+                if (gameName.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Add click event to save game progress when user clicks on a game
+        document.querySelectorAll('.game-card a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                const gameName = this.querySelector('.game-name').textContent;
+                
+                // Save that user accessed this game
+                fetch('/save_progress', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        game_name: gameName,
+                        progress_data: JSON.stringify({last_accessed: new Date().toISOString()}),
+                        score: 0,
+                        level: 1,
+                        lives: 3,
+                        game_state: JSON.stringify({})
+                    })
+                }).catch(error => console.log('Could not save progress:', error));
+            });
+        });
+
+        // Function to load game progress when returning to a game
+        function loadGameProgress(gameName) {
+            fetch(`/get_progress/${gameName}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Store progress data in localStorage for the game to access
+                        localStorage.setItem(`game_progress_${gameName}`, JSON.stringify({
+                            score: data.score,
+                            level: data.level,
+                            lives: data.lives,
+                            game_state: data.game_state,
+                            progress_data: data.progress_data
+                        }));
+                        console.log(`Loaded progress for ${gameName}:`, data);
+                    }
+                })
+                .catch(error => console.log('Could not load progress:', error));
+        }
+
+        // Load progress for all games on page load
+        document.querySelectorAll('.game-card a').forEach(link => {
+            const gameName = link.querySelector('.game-name').textContent;
+            loadGameProgress(gameName);
+        });
+    </script>
+</body>
+</html> 
